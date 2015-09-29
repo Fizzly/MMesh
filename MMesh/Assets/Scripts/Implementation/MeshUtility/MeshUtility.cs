@@ -22,12 +22,15 @@ namespace MeshUtility
 				//return false;
 			if(!position.Equals(vertex.position))
 				return false;
+            if (!uv.Equals(vertex.Uv))
+                return false;
+
 
 			return true;
 		}
 		public override int GetHashCode ()
 		{
-			return normal.GetHashCode() + position.GetHashCode ();
+			return normal.GetHashCode() + position.GetHashCode () + uv.GetHashCode() ;
 		}
 
         //Properties
@@ -51,6 +54,7 @@ namespace MeshUtility
 			get {
 				return uv;
 			}
+            set { uv = value; }
 		}
 
         private Color color;
@@ -115,6 +119,11 @@ namespace MeshUtility
 
         private Vector3 normal;
 
+        public Vector3 Normal
+        {
+            get { return normal; }
+        }
+
         //Relation
         private List<MTriangle> connections;
         private MMesh parent;
@@ -135,6 +144,12 @@ namespace MeshUtility
             get { return center; }
         }
 
+        private Vector2 uvCenter;
+        public Vector2 UvCenter
+        {
+            get { return uvCenter; }
+        }
+
         public MTriangle(MMesh parent,List<MVertex> vertices)
         {
             this.parent = parent;
@@ -147,6 +162,8 @@ namespace MeshUtility
                 MVertex vertex = vertices[i];
                 normal += vertex.Normal;
                 center += vertex.Position;
+
+                uvCenter += vertex.Uv.UV;
 
                 if (parent.Vertices.Contains(vertex))
                 {
@@ -165,6 +182,8 @@ namespace MeshUtility
             }
 
             center = center / 3;
+            uvCenter = uvCenter / 3;
+
 
             parent.Triangles.Add(this);
             normal = (normal / 3).normalized;
@@ -239,13 +258,39 @@ namespace MeshUtility
 		public Vector2 UV
 		{
 			get { return uv; }
-			set { UV = value; }
+			set
+            {
+                uv = value;
+            }
 		}
 
 		public MUVVertex( Vector2 uv)
 		{
 			this.uv = uv;
 		}
+
+
+        public override bool Equals(object other)
+        {
+            if (!(other is MUVVertex))
+            {
+                return false;
+            }
+            MUVVertex vertex = (MUVVertex)other;
+
+            //if(!normal.Equals(vertex.normal))
+            //return false;
+            if (!uv.Equals(vertex.uv))
+                return false;
+
+            return true;
+        }
+        public override int GetHashCode()
+        {
+            return uv.GetHashCode();
+        }
+
+
 
 		public RenderUtility.Point2D ToPoint2D()
 		{
@@ -314,6 +359,25 @@ namespace MeshUtility
 
         }
                  
+        public void ApplyPadding(float amount)
+        {
+            foreach(MVertex vertex in vertices)
+            {
+                if(vertex.Parents.Count < 3)
+                {
+                    Vector2 uvCenter = new Vector2() ;
+                    foreach(MTriangle triangleParent in vertex.Parents)
+                        uvCenter += triangleParent.UvCenter;
+
+                    uvCenter = uvCenter / vertex.Parents.Count;
+
+                    Vector2 uvOffset = (vertex.Uv.UV - uvCenter);
+                    vertex.Uv = new MUVVertex(new Vector2(vertex.Uv.UV.x + uvOffset.x, vertex.Uv.UV.y + uvOffset.y) ); 
+
+                }
+            }
+        }
+
         public void Debug()
         {
             foreach (MTriangle triangle in triangles)
@@ -336,4 +400,7 @@ namespace MeshUtility
                 bounds.Encapsulate(triangle.Bounds);
         }
     }
+
+
+
 }

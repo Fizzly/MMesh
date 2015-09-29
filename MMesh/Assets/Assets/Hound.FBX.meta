@@ -1,0 +1,114 @@
+fileFormatVersion: 2
+guid: 6529d99e5c0744044a2b1e855a90425b
+ModelImporter:
+  serializedVersion: 16
+  fileIDToRecycleName:
+    100000: //RootNode
+    100002: Hound
+    100004: HoundFrontLight1_Dummy
+    100006: HoundFrontLight2_Dummy
+    100008: HoundFrontWeapon1_Dummy
+    100010: HoundLeftWeapon1_Dummy
+    100012: HoundNitro1_Dummy
+    100014: HoundRearLight1_Dummy
+    100016: HoundRearLight2_Dummy
+    100018: HoundRearWeapon1_Dummy
+    100020: HoundRightWeapon1_Dummy
+    100022: HoundShadow
+    100024: HoundSmoke_Dummy
+    100026: HoundSpecialWeapon1_Dummy
+    100028: HoundWheel_LB
+    100030: HoundWheel_LF
+    100032: HoundWheel_RB
+    100034: HoundWheel_RF
+    400000: //RootNode
+    400002: Hound
+    400004: HoundFrontLight1_Dummy
+    400006: HoundFrontLight2_Dummy
+    400008: HoundFrontWeapon1_Dummy
+    400010: HoundLeftWeapon1_Dummy
+    400012: HoundNitro1_Dummy
+    400014: HoundRearLight1_Dummy
+    400016: HoundRearLight2_Dummy
+    400018: HoundRearWeapon1_Dummy
+    400020: HoundRightWeapon1_Dummy
+    400022: HoundShadow
+    400024: HoundSmoke_Dummy
+    400026: HoundSpecialWeapon1_Dummy
+    400028: HoundWheel_LB
+    400030: HoundWheel_LF
+    400032: HoundWheel_RB
+    400034: HoundWheel_RF
+    2300000: Hound
+    2300002: HoundShadow
+    2300004: HoundWheel_LB
+    2300006: HoundWheel_LF
+    2300008: HoundWheel_RB
+    2300010: HoundWheel_RF
+    3300000: Hound
+    3300002: HoundShadow
+    3300004: HoundWheel_LB
+    3300006: HoundWheel_LF
+    3300008: HoundWheel_RB
+    3300010: HoundWheel_RF
+    4300000: HoundShadow
+    4300002: Hound
+    4300004: HoundWheel_LF
+    4300006: HoundWheel_LB
+    4300008: HoundWheel_RF
+    4300010: HoundWheel_RB
+    9500000: //RootNode
+  materials:
+    importMaterials: 1
+    materialName: 0
+    materialSearch: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    optimizeGameObjects: 0
+    motionNodeName: 
+    animationCompression: 1
+    animationRotationError: .5
+    animationPositionError: .5
+    animationScaleError: .5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    clipAnimations: []
+    isReadable: 1
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 10
+    meshCompression: 0
+    addColliders: 0
+    importBlendShapes: 1
+    swapUVChannels: 1
+    generateSecondaryUV: 1
+    useFileUnits: 1
+    optimizeMeshForGPU: 1
+    weldVertices: 1
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+  tangentSpace:
+    normalSmoothAngle: 60
+    splitTangentsAcrossUV: 1
+    normalImportMode: 0
+    tangentImportMode: 1
+  importAnimation: 1
+  copyAvatar: 0
+  humanDescription:
+    human: []
+    skeleton: []
+    armTwist: .5
+    foreArmTwist: .5
+    upperLegTwist: .5
+    legTwist: .5
+    armStretch: .0500000007
+    legStretch: .0500000007
+    feetSpacing: 0
+    rootMotionBoneName: 
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  animationType: 2
+  additionalBone: 0
+  userData: 
