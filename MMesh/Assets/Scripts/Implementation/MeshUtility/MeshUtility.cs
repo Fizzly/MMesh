@@ -88,6 +88,167 @@ namespace MeshUtility
         }
     }
 
+
+
+    public class MUVTriangle
+    {
+
+        public override bool Equals(object other)
+        {
+            if (!(other is MUVTriangle))
+            {
+                return false;
+            }
+            MUVTriangle triangle = (MUVTriangle)other;
+
+            if (!normal.Equals(triangle.normal))
+                return false;
+            return true;
+        }
+
+        public override int GetHashCode()
+        {
+            return normal.GetHashCode() + center.GetHashCode();
+        }
+
+
+        //Properties
+        private List<MUVVertex> vertices;
+
+        public List<MUVVertex> Vertices
+        {
+            get { return vertices; }
+        }
+
+
+
+        private List<MUVEdge> edges;
+
+        public List<MUVEdge> Edges
+        {
+            get { return edges; }
+        }
+
+
+        private Vector3 normal;
+
+        public Vector3 Normal
+        {
+            get { return normal; }
+        }
+
+        //Relation
+        private List<MUVTriangle> connections;
+
+        public List<MUVTriangle> Connections
+        {
+            get { return connections; }
+        }
+        private MMesh parent;
+
+        private Vector2 center;
+        public Vector2 Center
+        {
+            get { return center; }
+        }
+
+
+        public MUVTriangle(MMesh parent, List<MUVVertex> vertices)
+        {
+            this.parent = parent;
+
+            this.vertices = new List<MUVVertex>();
+            this.connections = new List<MUVTriangle>();
+            this.edges = new List<MUVEdge>();
+
+            for (int i = 0; i < 3; i++)
+            {
+                MUVVertex vertex = vertices[i];
+                center += vertex.UV;
+
+                if (parent.UVVertices.Contains(vertex))
+                {
+                    int index = parent.UVVertices.IndexOf(vertex);
+                    if (parent.UVVertices[index].Parents.Contains(this) == false) parent.UVVertices[index].Parents.Add(this);
+                    MUVVertex tVertex = parent.UVVertices[index];
+                    tVertex.Parents.Add(this);
+                    this.vertices.Add(tVertex);
+                }
+                else
+                {
+                    vertex.Parents.Add(this);
+                    this.vertices.Add(vertex);
+                    parent.UVVertices.Add(vertex);
+                }
+            }
+
+            AddEdge(vertices[0], vertices[1]);
+            AddEdge(vertices[1], vertices[2]);
+            AddEdge(vertices[2], vertices[0]);
+
+
+            center = center / 3;
+  
+            parent.UVTriangles.Add(this);
+            normal = (normal / 3).normalized;
+            FindConnections();
+        }
+
+        private void AddEdge(MUVVertex from, MUVVertex to)
+        {
+            MUVEdge edge = new MUVEdge(from,to);
+            if (parent.UVEdges.Contains(edge))
+            {
+                int index = parent.UVEdges.IndexOf(edge);
+                if (parent.UVEdges[index].Parents.Contains(this) == false) parent.UVEdges[index].Parents.Add(this);
+                this.edges.Add(edge);
+            }
+            else
+            {
+                edge.Parents.Add(this);
+                this.edges.Add(edge);
+                parent.UVEdges.Add(edge);
+            }
+        }
+
+
+        public void FindConnections()
+        {
+            foreach (MUVTriangle triangle in parent.UVTriangles)
+            {
+                if (triangle != this)
+                {
+                    if (SharedConnections(triangle) == 2)
+                    {
+                        if (triangle.connections.Contains(this) == true && connections.Contains(triangle) == true)
+                            continue;
+                        else if (triangle.connections.Contains(this) == true && connections.Contains(triangle) == false)
+                            connections.Add(triangle);
+                        else if (triangle.connections.Contains(this) == false && connections.Contains(triangle) == false)
+                        {
+                            connections.Add(triangle);
+                            triangle.connections.Add(this);
+                        }
+                    }
+                }
+            }
+        }
+
+        private int SharedConnections(MUVTriangle checkTriangle)
+        {
+            int sharedConnections = 0;
+            foreach (MUVVertex vertex in vertices)
+            {
+                if (checkTriangle.vertices.Contains(vertex))
+                    sharedConnections += 1;
+            }
+            return sharedConnections;
+        }
+    }
+
+
+
+
 	public class MTriangle
 	{
 
@@ -251,6 +412,70 @@ namespace MeshUtility
         }
     }
 
+    public class MUVEdge
+    {
+        private MUVVertex from;
+        private MUVVertex to;
+
+        public Vector2 OriginDirection()
+        {
+            if (parents.Count == 1)
+                return parents[0].Center - (from.UV + to.UV);
+            else
+                return Vector2.zero;
+        }
+
+        public bool Contains(MUVVertex uvVertex)
+        {
+            if (from == uvVertex || to == uvVertex)
+                return true;
+            else
+                return false;
+        }
+
+        public MUVEdge(MUVVertex from, MUVVertex to)
+        {
+            this.from = from;
+            this.to = to;
+
+            this.parents = new List<MUVTriangle>();
+		}
+
+        public override bool Equals(object other)
+        {
+            if (!(other is MUVEdge))
+            {
+                return false;
+            }
+            MUVEdge vertex = (MUVEdge)other;
+
+
+            
+            if (!from.Equals(vertex.from))
+                return false;
+
+            if (!to.Equals(vertex.to))
+                return false;
+
+
+            return true;
+        }
+        public override int GetHashCode()
+        {
+            return from.GetHashCode() + to.GetHashCode();
+        }
+
+        //Relation
+        private List<MUVTriangle> parents;
+        public List<MUVTriangle> Parents
+        {
+            get { return parents; }
+            set { parents = value; }
+        }
+
+    }
+        
+
 	public class MUVVertex
 	{
 		//Properties
@@ -267,7 +492,16 @@ namespace MeshUtility
 		public MUVVertex( Vector2 uv)
 		{
 			this.uv = uv;
+            this.parents = new List<MUVTriangle>();
 		}
+
+        //Relation
+        private List<MUVTriangle> parents;
+        public List<MUVTriangle> Parents
+        {
+            get { return parents; }
+            set { parents = value; }
+        }
 
 
         public override bool Equals(object other)
@@ -308,19 +542,45 @@ namespace MeshUtility
             get { return triangles; }
             set { triangles = value; }
         }
+
+        private List<MUVTriangle> uvTriangles;
+        public List<MUVTriangle> UVTriangles
+        {
+            get { return uvTriangles; }
+            set { uvTriangles = value; }
+        }
+
         private List<MVertex> vertices;
         public List<MVertex> Vertices
         {
             get { return vertices; }
             set { vertices = value; }
         }
+
+        private List<MUVVertex> uvVertices;
+        public List<MUVVertex> UVVertices
+        {
+            get { return uvVertices; }
+            set { uvVertices = value; }
+        }
+
+        private List<MUVEdge> uvEdges;
+        public List<MUVEdge> UVEdges
+        {
+            get { return uvEdges; }
+            set { uvEdges = value; }
+        }
+
         private Bounds bounds;
 
         public MMesh()
         {
             mesh = new Mesh();
             triangles = new List<MTriangle>();
+            uvTriangles = new List<MUVTriangle>();
             vertices = new List<MVertex>();
+            uvVertices = new List<MUVVertex>();
+            uvEdges = new List<MUVEdge>();
             bounds = new Bounds(Vector3.zero, Vector3.zero);
         }
 
@@ -331,10 +591,15 @@ namespace MeshUtility
 
             this.mesh = mesh;
             triangles = new List<MTriangle>();
+            uvTriangles = new List<MUVTriangle>();
             vertices = new List<MVertex>();
+            uvVertices = new List<MUVVertex>();
+            uvEdges = new List<MUVEdge>();
             bounds = new Bounds(Vector3.zero, Vector3.zero);
 
+            // Temp for filling
 			List<MVertex> vertexList = new List<MVertex>();
+            List<MUVVertex> UVVertexList = new List<MUVVertex>();
 
 			// Reference data
 			int[] meshTriangles = mesh.triangles;
@@ -345,12 +610,18 @@ namespace MeshUtility
 			for (int triangle = 0; triangle < meshTriangles.Length; triangle += 3)
             {
                 vertexList.Clear();
+                UVVertexList.Clear();
 
 				vertexList.Add(new MVertex(meshVertices[meshTriangles[triangle    ]], meshNormals[meshTriangles[triangle    ]], meshUV[meshTriangles[triangle    ]]));
 				vertexList.Add(new MVertex(meshVertices[meshTriangles[triangle + 1]], meshNormals[meshTriangles[triangle + 1]], meshUV[meshTriangles[triangle + 1]]));
 				vertexList.Add(new MVertex(meshVertices[meshTriangles[triangle + 2]], meshNormals[meshTriangles[triangle + 2]], meshUV[meshTriangles[triangle + 2]]));
 
+                UVVertexList.Add(new MUVVertex( meshUV[meshTriangles[triangle    ]] ));
+                UVVertexList.Add(new MUVVertex( meshUV[meshTriangles[triangle + 1]] ));
+                UVVertexList.Add(new MUVVertex( meshUV[meshTriangles[triangle + 2]] ));
+
                 MTriangle newTriangle = new MTriangle(this, vertexList);
+                MUVTriangle newUVTriangle = new MUVTriangle(this, UVVertexList);
             }
 
             stopwatch.Stop();
@@ -361,20 +632,46 @@ namespace MeshUtility
                  
         public void ApplyPadding(float amount)
         {
-            foreach(MVertex vertex in vertices)
+
+            foreach(MUVVertex vertex in uvVertices)
             {
-                if(vertex.Parents.Count < 3)
+
+                    Vector2 uvOffset = new Vector2();
+                    foreach(MUVEdge edge in uvEdges)
+                    {
+                        if(edge.Contains(vertex))
+                        {
+                            if(edge.Parents.Count==1 )
+                            {
+                            
+                                uvOffset += (vertex.UV - edge.Parents[0].Center).normalized * amount;
+                           
+                            }
+                        }
+
+                    }
+                    vertex.UV += uvOffset;
+
+
+                
+                /*
+
+                //if(vertex.Parents.Count < 3)
                 {
                     Vector2 uvCenter = new Vector2() ;
-                    foreach(MTriangle triangleParent in vertex.Parents)
-                        uvCenter += triangleParent.UvCenter;
+                    foreach (MUVTriangle triangleParent in vertex.Parents)
+                    {
+                        uvCenter += (vertex.UV - triangleParent.Center);
+                    }
 
-                    uvCenter = uvCenter / vertex.Parents.Count;
+                    Vector2 uvOffset = uvCenter.normalized * amount;
 
-                    Vector2 uvOffset = (vertex.Uv.UV - uvCenter);
-                    vertex.Uv = new MUVVertex(new Vector2(vertex.Uv.UV.x + uvOffset.x, vertex.Uv.UV.y + uvOffset.y) ); 
-
+                    if (offsets.ContainsKey(vertex))
+                        offsets[vertex] = (offsets[vertex] + uvOffset) * 0.5f;
+                    else
+                        offsets.Add(vertex, uvOffset);
                 }
+                 * */
             }
         }
 

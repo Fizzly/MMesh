@@ -14,17 +14,23 @@ public class Rasterizer
         Vector2 vertexUV3;
 
         MTriangle[] meshTriangles = mesh.Triangles.ToArray();
+        MUVTriangle[] meshUVTriangles = mesh.UVTriangles.ToArray();
+        MTriangle triangle;
+        MUVTriangle uvTriangle;
 
         float step = (1f / resolution);
 
         int trianglecount = 0;
 
-        foreach (MTriangle triangle in mesh.Triangles)
+        for (int index = 0; index < meshTriangles.Length; index++ )
         {
+            triangle = meshTriangles[index];
+            uvTriangle = meshUVTriangles[index];
 
-            vertexUV1 = triangle.Vertices[0].Uv.UV;
-            vertexUV2 = triangle.Vertices[1].Uv.UV;
-            vertexUV3 = triangle.Vertices[2].Uv.UV;
+
+            vertexUV1 = uvTriangle.Vertices[0].UV;
+            vertexUV2 = uvTriangle.Vertices[1].UV;
+            vertexUV3 = uvTriangle.Vertices[2].UV;
 
             /* get the bounding box of the triangle */
             float minX = Mathf.Min(vertexUV1.x, Mathf.Min(vertexUV2.x, vertexUV3.x));
@@ -87,7 +93,7 @@ public class Rasterizer
                         tex.SetPixel(x, y, new Color(tangentSpaceNormal.x, tangentSpaceNormal.y, tangentSpaceNormal.z));
                          */
 
-                        tex.SetPixel(x, y, new Color(triangle.Normal.x * 0.5f + 0.5f, triangle.Normal.y * 0.5f + 0.5f, triangle.Normal.z * 0.5f + 0.5f) );
+                        tex.SetPixel(x, y, new Color(triangle.Normal.x * 0.5f + 0.5f, triangle.Normal.y * 0.5f + 0.5f, triangle.Normal.z * 0.5f + 0.5f));
 
                     }
 

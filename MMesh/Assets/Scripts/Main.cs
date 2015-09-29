@@ -32,7 +32,7 @@ public class Main : MonoBehaviour
         referenceGameObject = CreateGameobjectWithMesh("ReferenceObject", referencePlaneMesh);
         rasterizedGameObject = CreateGameobjectWithMesh("RasterizedObject", rasterizedPlaneMesh);
 
-        currentMesh.ApplyPadding(10f);
+        currentMesh.ApplyPadding((1f / 512) * 8f);
 
         referenceGameObject.renderer.material.mainTexture = rasterizer.RasterizeMesh(currentMesh, 512);
         rasterizedGameObject.renderer.material.mainTexture = referenceGameObject.renderer.material.mainTexture;
